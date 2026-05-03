@@ -8,14 +8,14 @@ from trafilatura import extract
 import pandas as pd
 import plotly.graph_objects as go
 import nltk
-nltk.download('vader_lexicon', quiet=True)
+nltk.download('vader_lexicon', quiet=True) #this is for reading the articles' text
+
 
 # Page setup instuctions
-
 api_key = st.secrets["FRED_API_KEY"]
 
 
-
+#pulling in ticker from input screen on the Stock Overview page
 ticker = st.session_state.get("ticker", None)
 
 if ticker is None or ticker == "":
@@ -25,6 +25,8 @@ if ticker is None or ticker == "":
 st.title(f"News Sentiment Analysis — {ticker}")
 
 
+
+# gets the articles listed on the finviz website, opens those articles, calcs the compound vader score, then adds all this info to a table
 @st.cache_data
 def get_sentiment(ticker):
     headers = {
@@ -77,7 +79,7 @@ def get_sentiment(ticker):
 
     sentiment = SentimentIntensityAnalyzer()
     compound_scores = []
-
+#starts to actually take the urls which were added to the dataframe open them extract the text and run it through vader
     for url in urls:
         try:
             response = requests.get(url, headers=headers, timeout=15)
@@ -94,7 +96,7 @@ def get_sentiment(ticker):
             compound_scores.append(None)
         except RequestException:
             compound_scores.append(None)
-
+#coverts the lists that everything was added to into a dictionary and then from the dict to a pandas dataframe
     df = pd.DataFrame({
         "Date": Date,
         "Time": Time,
@@ -103,20 +105,26 @@ def get_sentiment(ticker):
         "URL": urls
     })
 
-    return df
+    return df #function does it all! returns completed data frame with compound sentiment scores for the articles..
 
-
+#this calls the get_sentiment function using the ticker user input on the first screen and notifies user that the process
+#is happening # I read the 'design of everyday things book' and the importance of giving users input feedback...
 with st.spinner("Scraping news and analyzing sentiment... this may take a minute"):
     df_sentiment = get_sentiment(ticker)
 
+
+#provides the user with an error message if for some reason the finviz function didnt work
 if df_sentiment.empty:
     st.error("Could not retrieve news. FinViz may have blocked the request.")
     st.stop()
 
+# okay so this ONLY drops columns where the observation has an na in the 'compound score' column.' it ignores nas in
+#other columns
 
 df_display = df_sentiment.dropna(subset=["Compound Score"])
 
-
+#so this was kinda annoying and just had claude do it but essentially it formats the article column to just be the
+#clickable url to the article
 st.dataframe(
     df_display[["Date", "Time", "Headline", "Compound Score", "URL"]],
     column_config={
@@ -128,20 +136,21 @@ st.dataframe(
     use_container_width=True
 )
 
-# ── Average sentiment ─────────────────────────────────
+
 avg_score = df_sentiment["Compound Score"].mean()
 
+
+#displays in a separate container the overall mean sentiment score along with if it was "average", "good", etc..
 with st.container(border=True):
-    st.subheader("Overall Sentiment", help="Overall sentiment score is calculated by averaging the VADER compound sentiment scores for the articles included on the finviz page for the ticker you selected. Articles which have paywalls, such at the NYTimes, are omitted from the sentiment analysis.")
+    st.subheader("Overall Sentiment", help="Overall sentiment score is calculated by averaging the VADER compound sentiment scores for the articles included on the finviz page for the ticker you selected. Articles which have paywalls, such at the NYTimes, are omitted from the sentiment analysis. The compound score is a 'normalized, weighted composite score between -1 (extremely negative) and +1 (extremely positive)'. learn more about vader https://deepwiki.com/cjhutto/vaderSentiment/4.3-interpreting-results")
     st.metric("Average Compound Score", f"{avg_score:.3f}")
-    if avg_score > 0.05:
+    if avg_score >= 0.05:
         st.success("Overall sentiment is POSITIVE")
-    elif avg_score < -0.05:
+    elif avg_score <= -0.05:
         st.error("Overall sentiment is NEGATIVE")
     else:
         st.warning("Overall sentiment is NEUTRAL")
 
-# ── Sentiment bar chart ───────────────────────────────
 with st.container(border=True):
     st.subheader("Sentiment Over Time")
     fig = go.Figure()

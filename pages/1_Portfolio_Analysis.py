@@ -30,7 +30,7 @@ st.title(f"Portfolio Optimization - {ticker}", help = "Based on the last 15 year
 # ------------------------------------------------------------------------
 
 
-
+# calculates the important stuff for the analysis; I dont know how else to put it..
 close_data = raw_data['Close']
 close_data.columns = close_data.columns.get_level_values(0)
 monthly_prices = close_data.resample('ME').last()
@@ -41,19 +41,21 @@ monthly_returns = monthly_prices.pct_change().dropna()
 
 with st.container(border=True):
     st.subheader("Comparable Companies", help="Comparable companies populated from Yahoo Finance.")
-    st.write(f"Automatically Identified Comparable Companies to {ticker}. Deselect any you want to exclude one.")
+    st.write(f"Automatically Identified Comparable Companies to {ticker}. Deselect any you want to exclude.")
 
-    # multiselect lets user remove any comps they don't want
+    # multiselect lets user remove any comps they don't want to include in the portfolio :)
     selected_comps = st.multiselect(
         "Selected Comps",
         options=comps,
         default=comps
     )
 
+#creates to variable for the dataframes so we only include the companies the user wants to see
 selected_tickers = [ticker] + selected_comps
 filtered_monthly_returns = monthly_returns[selected_tickers]
 filtered_monthly_prices = monthly_prices[selected_tickers]
 
+#cause why not let them see the sauce?
 with st.container(border=True):
     with st.expander("View Monthly Price Data For Selected Tickers"):
         st.dataframe(filtered_monthly_prices)
@@ -63,7 +65,7 @@ with st.container(border=True):
 
 
 
-# Doing covariance matrix
+# Doing covariance matrix. The formatting for this is beyond me, but hey the data is right!
 cov_matrix = filtered_monthly_returns.cov()
 
 with st.container(border=True):
@@ -82,7 +84,7 @@ with st.container(border=True):
     )
     st.plotly_chart(fig_cov, use_container_width=True)
 
-#Doing correlation matrix
+#Doing correlation matrix..
 
 corr_matrix = filtered_monthly_returns.corr()
 
@@ -103,7 +105,7 @@ with st.container(border=True):
     st.plotly_chart(fig_corr, use_container_width=True)
 
 # running monte carlo simulations
-#pulling in FRED rate from PDR like from class
+#pulling in FRED (using API call) rate but couldn't use the package we used in class cause not supported in this version of python :(
 
 with st.container(border=True):
     st.subheader("Portfolio Simulation Generator")
@@ -205,7 +207,7 @@ fig.add_trace(go.Scatter(
     x=sim_risks.tolist(),
     y=sim_returns.tolist(),
     mode='markers',
-    marker=dict(size=3, color='lightgray', opacity=0.3),
+    marker=dict(size=3, color='darkgrey', opacity=0.3),
     name='Simulated Portfolios'
 ))
 
@@ -251,7 +253,7 @@ fig.add_trace(go.Scatter(
     x=cml_x.tolist(),
     y=cml_y.tolist(),
     mode='lines',
-    line=dict(color='white', dash='dash', width=1.5),
+    line=dict(color='black', dash='dash', width=1.5),
     name='Capital Market Line'
 ))
 
@@ -260,8 +262,8 @@ fig.add_trace(go.Scatter(
     x=[0],
     y=[rf_monthly],
     mode='markers+text',
-    marker=dict(size=8, color='white'),
-    text=[f'Risk-Free ({rf_annual:.1%} annual)'],
+    marker=dict(size=8, color='black'),
+    text=[f'Risk-Free ({rf_monthly:.1%} monthly)'],
     textposition='middle right',
     name='Risk-Free Rate'
 ))
@@ -273,7 +275,7 @@ fig.update_layout(
 )
 
 with st.container(border=True):
-    st.subheader(f"Efficiency Frontier Generated from {n_portfolios} Simulations")
+    st.subheader(f"Efficiency Frontier Generated from {n_portfolios} Simulations", help="Uses monte-carlo simulation. Risk free rate is from the current one month treasury bill rate (Source: FRED).")
     st.plotly_chart(fig, use_container_width=True)
 
 
