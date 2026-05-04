@@ -11,7 +11,7 @@ monthly_returns_comps = st.session_state.get("monthly_returns_comps", None)
 raw_data = st.session_state.get("raw_data", None)
 
 if ticker is None or raw_data is None or monthly_returns_comps is None:
-    st.warning("⚠️ Please complete the Stock Overview and Portfolio pages first.")
+    st.warning("_WARNING:_ Please complete the Stock Overview and Portfolio pages first.")
     st.stop()
 
 st.title(f"VaR Analysis — {ticker}")
@@ -44,7 +44,7 @@ with st.container(border=True):
 
 if dropped:
     with st.container(border=True):
-        st.warning(f"⚠️ The following tickers were excluded due to insufficient trading history (less than {int(threshold*100)}% of the observation period):")
+        st.warning(f"_WARNING:_ The following tickers were excluded due to insufficient trading history (less than {int(threshold*100)}% of the observation period):")
         for t in dropped:
             st.markdown(f"- **{t}**")
 
@@ -240,13 +240,11 @@ if abs(total_weight - 100.0) < 0.01:
         title=f"Monte Carlo VaR — {n_simulations:,} Simulated Scenarios"
     )
     with st.container(border=True):
-        st.subheader("Monte Carlo VaR",
-            help=f"Simulates {n_simulations:,} return scenarios by drawing randomly from a normal distribution fitted to historical mean and standard deviation.")
+        st.subheader("Monte Carlo VaR", help=f"Simulates {n_simulations:,} return scenarios by drawing randomly from a normal distribution fitted to historical mean and standard deviation.")
         st.plotly_chart(fig_mc, use_container_width=True, config={"displayModeBar": False})
 
     with st.container(border=True):
-        st.subheader("VaR Summary Table",
-            help="All values represent the maximum expected loss at each confidence level over a 30-day horizon _under normal conditions_.")
+        st.subheader("VaR Summary Table", help="All values represent the _maximum_ expected loss at each confidence level over a 30-day horizon _under normal conditions_.")
 
         summary_data = {
             "Confidence Level": [f"{int(cl * 100)}%" for cl in threshold_levels],
@@ -270,4 +268,4 @@ if abs(total_weight - 100.0) < 0.01:
 
 
 else:
-    st.warning("⚠️ Please adjust weights to total 100% before running analysis.")
+    st.warning("_WARNING:_ Please adjust weights to total 100% before running analysis.")

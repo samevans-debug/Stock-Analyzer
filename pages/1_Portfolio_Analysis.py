@@ -22,7 +22,7 @@ raw_data = st.session_state.get('raw_data', None)
 
 # Checks to make sure a stock was indeed selected on the first Stock_Summary Page
 if data is None or not comps or ticker == "":
-    st.warning("⚠️ Please enter a ticker on the Stock Overview page first. If you entered a ticker on the first page and are getting this message then it means that no comps were capture for this stock, please choose another to continue.")
+    st.warning("_WARNING:_ Please enter a ticker on the Stock Overview page first. If you entered a ticker on the first page and are getting this message then it means that no comps were capture for this stock, please choose another to continue.")
     st.stop()
 
 st.title(f"Portfolio Optimization - {ticker}", help = "Based on the last 15 years of stock data.")
@@ -116,7 +116,7 @@ with st.container(border=True):
 def get_risk_free_rate(api_key):
     url = (
         f"https://api.stlouisfed.org/fred/series/observations"
-        f"?series_id=DTB3"
+        f"?series_id=DGS1MO" #this is the code for 1-month treasury bills annualized; some code used in class lecture 25
         f"&api_key={api_key}"
         f"&file_type=json"
         f"&sort_order=desc"

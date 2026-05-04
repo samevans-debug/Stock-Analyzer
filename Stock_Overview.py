@@ -176,7 +176,7 @@ if not ticker_data.empty:
 
 
 else:
-    st.warning("_Stock ticker entered is not available. Please try another ticker before selecting next._")
+    st.warning("_WARNING:_ Stock ticker entered is not available. Please try another ticker before selecting next.")
 
 
 #getting comps from yahoo finance for other pages

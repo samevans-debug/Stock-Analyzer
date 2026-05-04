@@ -19,7 +19,7 @@ api_key = st.secrets["FRED_API_KEY"]
 ticker = st.session_state.get("ticker", None)
 
 if ticker is None or ticker == "":
-    st.warning("⚠️ Please enter a ticker on the Stock Overview page first.")
+    st.warning("_WARNING:_ Please enter a ticker on the Stock Overview page first.")
     st.stop()
 
 st.title(f"News Sentiment Analysis — {ticker}")
@@ -109,7 +109,7 @@ def get_sentiment(ticker):
 
 #this calls the get_sentiment function using the ticker user input on the first screen and notifies user that the process
 #is happening # I read the 'design of everyday things book' and the importance of giving users input feedback...
-with st.spinner("Scraping news and analyzing sentiment... this may take a minute"):
+with st.spinner("Scraping news and analyzing sentiment... this may take a minute (like literally a minute..)"):
     df_sentiment = get_sentiment(ticker)
 
 
