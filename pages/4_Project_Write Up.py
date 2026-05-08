@@ -5,7 +5,7 @@ st.subheader("_Created by Samuel Evans -- Spring 2026_")
 with st.container(border=True):
     st.markdown("**Link to Github Repo:** https://github.com/samevans-debug/Stock-Analyzer")
 
-st.subheader("project Overview")
+st.subheader("Project Overview")
 st.markdown("At the start of this semester, a goal of mine has been to learn to " \
 "code Streamlit applications in Python, and this assignment " \
 "was an ideal opportunity for me to achieve this goal. " \
